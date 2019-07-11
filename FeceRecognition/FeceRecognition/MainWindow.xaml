@@ -7,6 +7,21 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30*" />
+            <ColumnDefinition Width="349*" />
+            <ColumnDefinition Width="30*" />
+        </Grid.ColumnDefinitions>
+        <Image Margin="12,12,16,71" Name="imgPhoto"
+        Stretch="Fill" Grid.Column="1" />
+        <Button Height="23" HorizontalAlignment="Left"
+        Margin="12,0,0,34" Name="Upload" VerticalAlignment="Bottom"
+        Width="75" Grid.Column="1" Click="MenuOpen_Click">Upload</Button>
+        <Button Height="23" HorizontalAlignment="Center"
+        Margin="12,0,0,34" Name="CompareData" VerticalAlignment="Bottom"
+        Width="75" Grid.Column="1" Click="Compare_Click">Compare</Button>
+        <TextBlock Height="23" HorizontalAlignment="Right"
+        Margin="12,0,0,34" Name="PassFail" VerticalAlignment="Bottom" Grid.Column="1"></TextBlock>
         
     </Grid>
 </Window>
