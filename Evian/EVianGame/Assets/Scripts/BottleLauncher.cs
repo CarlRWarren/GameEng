@@ -2,98 +2,105 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BottleLauncher : MonoBehaviour
 {
     [SerializeField] GameObject m_bottle = null;
-    public float Power { get; set; }
+    [SerializeField] Slider power = null;
+    public float Power { get; set; } = 100.0f;
+
+    private bool flip = true;
+    private bool toss;
+    private bool tossed;
+    private bool reset;
+    Transform bottleTransform = null;
+    Quaternion bottleRot;
+    float horizontal=0.0f;
+
+    private void Start()
+    {
+        bottleTransform = m_bottle.transform;
+        bottleRot = bottleTransform.rotation;
+        power.minValue = 100.0f;
+        power.maxValue = 600.0f;
+    }
 
     void Update()
     {
-        Quaternion bottleRot = m_bottle.transform.rotation;
-        
         if (Input.GetKeyDown(KeyCode.A))
         {
-            Debug.Log("Enter a");
-
             //look and aim left
-            while (Input.GetKeyDown(KeyCode.A)&&bottleRot.y <= 45.0f)
+            if (!Input.GetKeyUp(KeyCode.A)&&bottleRot.y >= -45.0f)
             {
-                Debug.Log("Enter a loop");
-
                 //aim right
-                bottleRot.y += 0.2f;
+                bottleRot.y -= 0.2f;
             }
         }
         else if (Input.GetKeyDown(KeyCode.D))
         {
-            Debug.Log("Enter d");
-
             //look and aim right
-            while (Input.GetKeyDown(KeyCode.D) && bottleRot.y >= -45.0f)
+            if (!Input.GetKeyUp(KeyCode.D) && bottleRot.y <= 45.0f)
             {
                 //aim left
-                Debug.Log("Enter d loop");
-
-                bottleRot.y -= 0.2f;
+                bottleRot.y = 0.2f;
             }
         }
         else if (Input.GetKeyDown(KeyCode.W))
         {
-            Debug.Log("Enter w");
-
             //aim up
-            while (Input.GetKeyDown(KeyCode.W) && bottleRot.x <= 45.0f)
+            if (!Input.GetKeyUp(KeyCode.W) && bottleTransform.rotation.x >= -60.0f)
             {
                 //increment arc
-                Debug.Log("Enter w loop");
-
-                bottleRot.x += 0.2f;
+                bottleRot.x -= 0.2f;
             }
         }
         else if (Input.GetKeyDown(KeyCode.S))
         {
-            Debug.Log("Enter s");
-
             //aim down
-            while (Input.GetKeyDown(KeyCode.S) && bottleRot.x >= -45.0f)
+            if (!Input.GetKeyUp(KeyCode.S) && bottleTransform.rotation.x  <= 60.0f)
             {
-                Debug.Log("Enter s loop");
-
-                bottleRot.x -= 0.2f;
+                bottleRot.x += 0.2f;
             }
         }
-        else if (Input.GetKeyDown(KeyCode.Space)==true)
+        if (Input.GetKey(KeyCode.Space)==true)
         {
-            Debug.Log("Entered space");
+            toss = true;
 
-            while (Input.GetKeyDown(KeyCode.Space)==true)
+            if (Input.GetKeyUp(KeyCode.Space)==false)
             {
-                Debug.Log("Entered loop");
-
+                power.value = Power;
                 //increment/decriment power
-                float powDif = 0.3f;
-                if (Power >= 6.0f)
+                float powDif = 100.0f;
+                if (Power >= 600.0f)
                 {
-                    powDif *= -1.0f;
+                    flip = false;
                 }
-                else if (Power <= 0.0f)
+                else if (Power < 99.0f)
                 {
-                    powDif *= -1.0f;
+                    Power = 100.0f;
+                    flip = true;
                 }
-                else
-                {
-                    Power += powDif;
-                }
-                if (Input.GetKeyUp(KeyCode.Space))
-                {
-                    break;
-                }
+                if(flip) Power += powDif;
+                else Power -= powDif;
             }
+            
             //throw
-            Debug.Log(Power.ToString());
         }
-        if (m_bottle.transform.position.y <= -1.0f)
+        Vector3 targetPosition = new Vector3(0.0f + Power * bottleRot.y, Power + Power * bottleRot.x, Power*0.5f) - bottleTransform.position;
+        if (toss && Input.GetKey(KeyCode.Space)==false &&!tossed)
+        {
+            tossed = true;
+            m_bottle.GetComponent<Rigidbody>().isKinematic = false;
+            m_bottle.GetComponent<Rigidbody>().AddForce(targetPosition);
+            m_bottle.GetComponent<Rigidbody>().useGravity = true;
+            toss = false;
+        }
+        if (m_bottle.transform.position.y <= 0.3f)
+        {
+            reset = true;
+        }
+        if (reset)
         {
             Reset();
         }
@@ -101,6 +108,14 @@ public class BottleLauncher : MonoBehaviour
 
     private void Reset()
     {
-        m_bottle.transform.position = new Vector3(0.0f, 0.0f, 0.62f);
+        reset = false;
+        tossed = false;
+        Power = 100.0f;
+        m_bottle.GetComponent<Rigidbody>().isKinematic = true;
+        m_bottle.GetComponent<Rigidbody>().useGravity = false;
+        bottleRot= bottleTransform.rotation = Quaternion.identity;
+        bottleTransform.position = new Vector3(0.0f, 2.65f, -8.95f);
+        m_bottle.GetComponent<Rigidbody>().MovePosition(bottleTransform.position);
+        m_bottle.GetComponent<Rigidbody>().MoveRotation(bottleTransform.rotation);
     }
 }
