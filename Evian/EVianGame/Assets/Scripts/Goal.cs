@@ -5,7 +5,7 @@ using UnityEngine;
 public class Goal : MonoBehaviour
 {
     [SerializeField] Transform m_target = null;
-    [SerializeField] float m_speed = 0.5f;
+    [SerializeField] float m_speed = 0.5f;    
 
     void Update()
     {
